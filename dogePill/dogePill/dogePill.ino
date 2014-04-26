@@ -25,10 +25,11 @@
 #include <Adafruit_MotorShield.h>             // motor shield version 2.0
 #include "utility/Adafruit_PWMServoDriver.h"  // servo driver library
 
+// ********* CONFIGURATION: ********* 
 #define stepsPerRotation    200   // number of steps per 360˚
 #define rotateStepperPort   1     // port for stepper to rotate assembly
 #define dispenseStepperPort 2     // port for stepper to dispense pills
-#define motorSpeed          250   // RPM for both motors
+#define motorSpeed          5   // RPM for both motors
 #define baudRate            57600 // baudrate - can be changed for other libraries
                                   // but if you do and use serial-web-terminal for access:
                                   // $ node index.js --baud <baudRate>
@@ -63,6 +64,11 @@ numvar dispenseHandler(void) {
   rotateStepper->step(steps, BACKWARD, DOUBLE);                          // returns to previous position
 }
 
+numvar speedHandler(void) {
+  rotateStepper->setSpeed(getarg(1));   // set rotate speed to arg
+  dispenseStepper->setSpeed(getarg(1)); // set dispense speed to arg
+}
+
 
 
 void setup() {
@@ -71,9 +77,11 @@ void setup() {
   rotateStepper->setSpeed(motorSpeed);
   dispenseStepper->setSpeed(motorSpeed);
   
-  addBitlashFunction("rotate", (bitlash_function) rotateStepperHandler);      // adds rotate(n)   - rotates n 1.8˚ steps
-  addBitlashFunction("dispenser", (bitlash_function) dispenseStepperHandler); // adds stepper(n)  - dispenser motor / moves n 1.8˚ steps
-  addBitlashFunction("dispense", (bitlash_function) dispenseHandler);         // adds dispense(n) - rotates to position n, dispenses, returns
+  addBitlashFunction("rotate", (bitlash_function) rotateStepperHandler);        // adds rotate(n)        - rotates n 1.8˚ steps
+  addBitlashFunction("dispenser", (bitlash_function) dispenseStepperHandler);   // adds stepper(n)       - dispenser motor / moves n 1.8˚ steps
+  addBitlashFunction("dispense", (bitlash_function) dispenseHandler);           // adds dispense(n)      - rotates to position n, dispenses, returns
+  addBitlashFunction("speed", (bitlash_function) speedHandler);     // adds rotateSpeed(n)   - adjusts speed to n RPM
+  
   
   
   initBitlash(baudRate); // begin bitlash at 57600 baud
